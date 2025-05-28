@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เพิ่มรายการ Order</title>
+  <script src="order.js" defer></script>
+  <script src="fetch_data.js" defer></script>
+</head>
+<body>
+  <h2>เพิ่มรายการ</h2>
+
+  <!-- ฟอร์มกรอกสินค้า -->
+  <label>ชื่อสินค้า:</label>
+  <input type="text" id="itemName">
+  <label>จำนวน:</label>
+  <input type="number" id="quantity">
+  <label>ราคา:</label>
+  <input type="number" id="price" step="0.01">
+  <button id="addItem">เพิ่มรายการ</button>
+
+  <!-- ช่องกรอก Order Code -->
+  <h3>รายการสินค้า</h3>
+  <!-- ตารางรายการสินค้า -->
+  <table border="1" id="orderTable">
+    <thead>
+      <tr>
+        <th>ชื่อสินค้า</th>
+        <th>จำนวน</th>
+        <th>ราคา</th>
+        <th>การกระทำ</th>
+      </tr>
+    </thead>
+    <tbody>
+       
+      <!-- แถวจะถูกเพิ่มที่นี่ด้วย JavaScript -->
+    </tbody>
+    <tfoot>
+    <tr>
+      <td colspan="2" style="text-align: right;"><strong>รวมทั้งหมด:</strong></td>
+      <td id="totalPrice">0.00</td>
+      <td></td>
+    </tr>
+  </tfoot>
+  </table>
+
+  <br>
+  <button id="submitOrder">บันทึกรายการ</button>
+  <hr>
+  <br>
+  <h3>ค้นหารายการ</h3>
+  <input type="text" id="order_code" placeholder="กรุณากรอก Order Code">
+  <br>
+  <br>
+  <!-- ตารางรายการสินค้า -->
+  <table border="1" id="searchTable">
+    <thead>
+      <tr>
+        <th>ชื่อสินค้า</th>
+        <th>จำนวน</th>
+        <th>ราคา</th>
+        <th>การกระทำ</th>
+      </tr>
+    </thead>
+    <tbody>
+         <tr><td colspan="4">ไม่พบรายการ</td></tr>
+      <!-- แถวจะถูกเพิ่มที่นี่ด้วย JavaScript -->
+    </tbody>
+     <tfoot>
+    <tr>
+      <td colspan="2" style="text-align: right;"><strong>รวมทั้งหมด:</strong></td>
+      <td id="totalSearchPrice">0.00</td>
+      <input type="hidden"  id="UpdateTotalPrice">
+      <td></td>
+    </tr>
+  </tfoot>
+  </table>
+</body>
+</html>
