@@ -54,43 +54,39 @@ if ($method === 'GET') {
     if (! empty($input['order_items'])) {
         try {
 
-        // -------- เพิ่ม Order --------------- //
+            // -------- เพิ่ม Order --------------- //
             // Generate Order Code
-            $rannum =  rand(10,99);
-            $orderNumber = "RQ".$rannum;
+            $rannum      = rand(10, 99);
+            $orderNumber = "RQ" . $rannum;
             // สร้างตัวแปร totalPrice สำหรับเก็บค่าราคารวม
             $totalPrice = 0;
             // Query เพิ่ม Order
             $order = $conn->prepare("INSERT INTO orders (order_number ,total_price) VALUES (:order_number,:total_price)");
             // ทำการวนลูปเพื่อดึงรายการสินค้าจาก input ที่ถูกส่งมาแบบ Array
-            foreach ($input['order_items']  as $data_order){
+            foreach ($input['order_items'] as $data_order) {
                 // ทำการคำนวนราคารวมสำหรับแต่ละรายการสินค้า
                 $totalPrice += $data_order['quantity'] * $data_order['price'];
-                $order->BindParam(":order_number" , $orderNumber);
-                $order->BindParam(":total_price",  $totalPrice);
+                $order->BindParam(":order_number", $orderNumber);
+                $order->BindParam(":total_price", $totalPrice);
             }
-            $orders -> Execute();
+            $orders->Execute();
             $order = null;
 
-        // -------- เพิ่ม Order Item --------------- //
-                $order_items = $conn->prepare("INSERT INTO order_items (
-                                                            order_number, 
-                                                            item_name, 
-                                                            quantity, 
-                                                            price)
-                                                         VALUES (
-                                                            :order_number, 
-                                                            :item_name, 
-                                                            :quantity, 
-                                                            :price)");
+            // -------- เพิ่ม Order Item --------------- //
+
+            $order_items = $conn->prepare("INSERT INTO order_items ( order_number, item_name, quantity,  price)VALUES (:order_number, :item_name, :quantity, :price)");
+            foreach($input['order_items'] as $data_order_items) {
+                $order_items->BindParam(":order_number" ,$orderNumber);
+                $order_items->BindParam(":item_name" ,$data_order_items['item_name']);
+            }
 
         } catch (PDOException $e) {
             http_response_code(200);
             echo json_encode([
-                "code" => 204,
-                "status" => "error",
-                "title" => "Something went wrong",
-                "message" => "Could not complete the request : $e"
+                "code"    => 204,
+                "status"  => "error",
+                "title"   => "Something went wrong",
+                "message" => "Could not complete the request : $e",
             ]);
             exit;
         }
