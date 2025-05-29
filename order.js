@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
         item_name: cells[0].innerText,
         quantity: parseInt(cells[1].innerText),
         price: parseFloat(cells[2].innerText),
-        total_price: parseFloat(cells[2].innerText) * parseInt(cells[1].innerText),
+        // total_price: parseFloat(cells[2].innerText) * parseInt(cells[1].innerText),
       };
     });
 

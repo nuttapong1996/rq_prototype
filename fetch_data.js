@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadItems(){
 const order_code = document.getElementById('order_code').value;
-  const orderTableBody = document.getElementById('searchTable').getElementsByTagName('tbody')[0];
-  const updateTotalPrice = document.getElementById("UpdateTotalPrice");
+const orderTableBody = document.getElementById('searchTable').getElementsByTagName('tbody')[0];
 
   fetch('fetch_data.php', {
     method: 'POST',
@@ -19,10 +18,11 @@ const order_code = document.getElementById('order_code').value;
     orderTableBody.innerHTML = ''; // ล้างข้อมูลเก่า
     data.forEach(item => {
       const row = orderTableBody.insertRow();
+      row.setAttribute('data-id', item.id);
       row.insertCell().textContent = item.item_name;
       row.insertCell().textContent = item.quantity;
       row.insertCell().textContent = item.price;
-      row.insertCell().innerHTML = '<button onclick="deleteItem(' + item.id + ', ' + updateTotalPrice.value + ')">ลบ</button>'; // ปุ่มลบ
+      row.insertCell().innerHTML = '<button onclick="deleteItem('+ item.id +')">ลบ</button>'; // ปุ่มลบ
     });
     updateTotalDelete();
   })
@@ -32,16 +32,25 @@ const order_code = document.getElementById('order_code').value;
   
 }
 
+function deleteItem(itemId){
+  if (!confirm("คุณต้องการลบสินค้านี้ใช่ไหม?")) return;
 
-function deleteItem(itemId ,totalPrice){
-     if (!confirm("คุณต้องการลบสินค้านี้ใช่ไหม?")) return;
+  // ลบแถวจาก DOM ก่อน (ถ้าทำแบบ frontend delete)
+  // หรือจะทำหลังได้รับ response ก็ได้
+  const row = document.querySelector(`tr[data-id='${itemId}']`);
+  if (row) row.remove();
+
+  const updatedTotal = updateTotalDelete();
+  const order_code = document.getElementById('order_code').value;
+
 
     fetch('delete_item.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: itemId,
-        totalPrice: totalPrice
+        order_code: order_code,
+        totalPrice: updatedTotal
       })
     })
     .then(res => res.json())
@@ -61,13 +70,12 @@ function updateTotalDelete(){
   let total = 0;
 
   for (let row of rows) {
-    // const quantity = parseFloat(row.cells[1].innerText);
+    const quantity = parseFloat(row.cells[1].innerText);
     const price = parseFloat(row.cells[2].innerText);
-    total += price;
+    total += quantity* price;
   }
   document.getElementById("totalSearchPrice").textContent = total.toFixed(2);
-  document.getElementById("totalSearchPrice").value = total.toFixed(2)
-
+  return total;
 }
 
 

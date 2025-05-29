@@ -19,8 +19,10 @@ try {
     $curDate = date("Ymdhms");
     $orderNumber = "ORD".$curDate;
     $orders_num = $conn->prepare("INSERT INTO orders (order_number ,total_price) VALUES (?,?)");
+    $totalPrice = 0;
     foreach($data["order_items"] as $order){
-        $orders_num->bind_param("sd", $orderNumber, $order["total_price"]);
+        $totalPrice += $order["quantity"] * $order["price"];
+        $orders_num->bind_param("sd", $orderNumber, $totalPrice);
     }
         $orders_num->execute();
 
