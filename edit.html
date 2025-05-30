@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="fetch_data.js"></script>
+    <title>แก้ไขสินค้า</title>
+</head>
+<body>
+    <h3>แก้ไขสินค้า</h3>
+    <div>
+        <span>Order Code :</span>
+        <input type="text" name="orderCode" id="orderCode" disabled>
+    </div>
+    <br>
+    <div>
+        <span>ชื่อสินค้า :</span>
+        <input type="hidden" name="item_id" id="item_id">
+        <input type="text" name="item_name" id="item_name">
+    </div>
+    <br>
+    <div>
+        <span>จำนวน :</span>
+        <input type="text" name="qty" id="qty">
+    </div>
+    <br>
+    <div>
+        <span>ราคา/ชิ้น :</span>
+        <input type="text" name="price" id="price">
+        <input type="hidden" name="total_order_price" id="total_order_price">
+    </div>
+    <br>
+    <div>
+        <span>ราคารวม :</span>
+        <input type="text" name="sum_item_price" id="sum_item_price" disabled>
+    </div>
+    <br>
+    <div>
+        <input type="button" value="แก้ไขสินค้า" id="update_btn">
+    </div>
+</body>
+</html>
+
+<script>
+    const url = new URL(window.location.href);
+    const order_number = url.searchParams.get('order_code')
+    const item_id =url.searchParams.get('id');
+    loadItemDetail(order_number,item_id);
+
+    const update_btn = document.getElementById('update_btn');
+    update_btn.addEventListener('click',updateItem);
+
+</script>

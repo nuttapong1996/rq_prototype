@@ -13,7 +13,7 @@ $pdo = new PDO("mysql:host=localhost;dbname=order_db;charset=utf8mb4", "root", "
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 ]);
 
-$stmt = $pdo->prepare("SELECT id ,item_name, price, quantity FROM order_items WHERE order_number = ?");
+$stmt = $pdo->prepare("SELECT id ,order_number, item_name, price, quantity FROM order_items WHERE order_number = ?");
 $stmt->execute([$order_code]);
 
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);

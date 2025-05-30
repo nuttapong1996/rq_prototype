@@ -8,11 +8,30 @@ $input = json_decode(file_get_contents("php://input"), true);
 $method = $_SERVER['REQUEST_METHOD'];
 //เรียกดูรายการสินค้า By Order Code (GET)
 if ($method === 'GET') {
-    if (! empty($input['order_code'])) {
+    if (! empty($_GET['order_code'])) {
         try {
-            $order_code = $input['order_code'];
-            $stmt       = $conn->prepare("SELECT id ,item_name, price, quantity FROM order_items WHERE order_number = :order_number");
-            $stmt->BindParam(":order_number", $order_code);
+            $order_code = $_GET['order_code'];
+            // ตรวจสอบว่ามีพารามิตเตอร์ id ของ item อยู่หรือไม่ เพื่อดึงเฉพาะ item เดียว
+            if (isset($_GET['id'])) {
+                // ดึงเฉพาะรายการ โดย ดึงจาก Order_code และ id ของ item
+                $itemId = $_GET['id'];
+                $stmt = $conn->prepare("SELECT 
+                                            items.id ,
+                                            items.order_number ,
+                                            items.item_name, 
+                                            items.price, 
+                                            items.quantity ,
+                                            order_detail.total_price 
+                                            FROM order_items  AS items
+                                            JOIN orders AS order_detail ON items.order_number = order_detail.order_number
+                                            WHERE items.order_number =:order_number AND items.id =:item_id");
+                $stmt->BindParam(":order_number", $order_code);
+                $stmt->BindParam(":item_id", $itemId);
+            } else {
+                // ดึงรายการทั้งหมด
+                $stmt = $conn->prepare("SELECT id ,order_number ,item_name, price, quantity FROM order_items WHERE order_number = :order_number");
+                $stmt->BindParam(":order_number", $order_code);
+            }
             $stmt->Execute();
             $result = $stmt->FetchAll(PDO::FETCH_ASSOC);
             http_response_code(200);
@@ -51,9 +70,8 @@ if ($method === 'GET') {
     }
 //เพิ่มรายการสินค้า (Add)
 } elseif ($method === 'POST') {
-    if (! empty($input['order_items'])) {
+    if (! empty($input['order_items']) && is_array($input['order_items'])) {
         try {
-
             // -------- เพิ่ม Order --------------- //
             // Generate Order Code
             $rannum      = rand(10, 99);
@@ -69,16 +87,21 @@ if ($method === 'GET') {
                 $order->BindParam(":order_number", $orderNumber);
                 $order->BindParam(":total_price", $totalPrice);
             }
-            $orders->Execute();
+            $order->Execute();
             $order = null;
-
             // -------- เพิ่ม Order Item --------------- //
-
+            // Query เพิ่ม Order Item
             $order_items = $conn->prepare("INSERT INTO order_items ( order_number, item_name, quantity,  price)VALUES (:order_number, :item_name, :quantity, :price)");
-            foreach($input['order_items'] as $data_order_items) {
-                $order_items->BindParam(":order_number" ,$orderNumber);
-                $order_items->BindParam(":item_name" ,$data_order_items['item_name']);
+            // ทำการวนลูปเพื่อบันทึกรายการสินค้า
+            foreach ($input['order_items'] as $data_order_items) {
+                $order_items->BindParam(":order_number", $orderNumber);
+                $order_items->BindParam(":item_name", $data_order_items['item_name']);
+                $order_items->BindParam(":quantity", $data_order_items['quantity']);
+                $order_items->BindParam(":price", $data_order_items['price']);
+                $order_item->execute();
             }
+            $order_items = null;
+            $conn        = null;
 
         } catch (PDOException $e) {
             http_response_code(200);
@@ -100,11 +123,33 @@ if ($method === 'GET') {
         ]);
         exit;
     }
-    // echo "นี่คือ POST request";
-} elseif ($method === 'PUT') {
-    echo "นี่คือ PUT request";
+}
+//แก้ไขรายการสินค้า (PUT)
+elseif ($method === 'PUT') {
+    if(!empty($input['order_code']) && !empty($input['id'])){
+        http_response_code(200);
+        echo json_encode([
+            'code' => 200,
+            'status' => 'success',
+            'order_code' => $input['order_code'],
+            'id' => $input['id'],
+            'item_name' => $input['itemName'],
+            'price' => $input['price'],
+            'quantity' => $input['quantity'],
+            'total_order_price' => $input['total_order_price'],
+            'sum_item_price' => $input['sum_item_price']
+        ]);
+    }else{
+        http_response_code(200);
+        echo json_encode([
+            'code' => 204,
+            'status' => 'error',
+            'title' =>  'Not found',
+            'message' => 'Order code or id is require'
+        ]);
+    }
 } elseif ($method === 'DELETE') {
-    echo "นี่คือ DELETE request";
+    // echo "นี่คือ DELETE request";
 } else {
     echo "ไม่รู้จัก method: $method";
 }
