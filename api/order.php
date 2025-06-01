@@ -6,7 +6,8 @@ header('Content-Type: application/json');
 $input = json_decode(file_get_contents("php://input"), true);
 
 $method = $_SERVER['REQUEST_METHOD'];
-//เรียกดูรายการสินค้า By Order Code (GET)
+
+//เรียกดูรายการ By Order Code (GET)
 if ($method === 'GET') {
     if (! empty($_GET['order_code'])) {
         try {
@@ -15,13 +16,13 @@ if ($method === 'GET') {
             if (isset($_GET['id'])) {
                 // ดึงเฉพาะรายการ โดย ดึงจาก Order_code และ id ของ item
                 $itemId = $_GET['id'];
-                $stmt = $conn->prepare("SELECT 
+                $stmt   = $conn->prepare("SELECT
                                             items.id ,
                                             items.order_number ,
-                                            items.item_name, 
-                                            items.price, 
+                                            items.item_name,
+                                            items.price,
                                             items.quantity ,
-                                            order_detail.total_price 
+                                            order_detail.total_price
                                             FROM order_items  AS items
                                             JOIN orders AS order_detail ON items.order_number = order_detail.order_number
                                             WHERE items.order_number =:order_number AND items.id =:item_id");
@@ -68,7 +69,7 @@ if ($method === 'GET') {
         );
         exit;
     }
-//เพิ่มรายการสินค้า (Add)
+//เพิ่ม Order และ รายการ (POST)
 } elseif ($method === 'POST') {
     if (! empty($input['order_items']) && is_array($input['order_items'])) {
         try {
@@ -124,32 +125,77 @@ if ($method === 'GET') {
         exit;
     }
 }
-//แก้ไขรายการสินค้า (PUT)
+//แก้ไขรายการ (PUT)
 elseif ($method === 'PUT') {
-    if(!empty($input['order_code']) && !empty($input['id'])){
+    if (! empty($input['orderCode']) && ! empty($input['itemId'])) {
+        try {
+            $orderCode    = $input['orderCode'];
+            $itemId       = $input['itemId'];
+            $itemName     = $input['itemName'];
+            $qty          = $input['quantity'];
+            $price        = $input['price'];
+            $sumItemPrice = $input['sumItemPrice'];
+
+            // Query Update รายละเอียด Item
+            $stmtUpdateOrderItem = $conn->prepare("UPDATE order_items
+                                                SET item_name =:item_name ,
+                                                    quantity=:qty ,
+                                                    price =:update_price
+                                                WHERE order_number = :order_code
+                                                AND id =:item_id");
+            $stmtUpdateOrderItem->BindParam(":item_name", $itemName);
+            $stmtUpdateOrderItem->BindParam(":qty", $qty);
+            $stmtUpdateOrderItem->BindParam(":update_price", $price);
+            $stmtUpdateOrderItem->BindParam(":order_code", $orderCode);
+            $stmtUpdateOrderItem->BindParam(":item_id", $itemId);
+            $stmtUpdateOrderItem->Execute();
+
+            // ทำการ Query เพื่อคำนวนราคารวมของ Order ใหม่
+            $stmtTotalPrice = $conn->prepare("SELECT SUM(quantity * price) AS  Total FROM order_items WHERE order_number =:orderCode");
+            $stmtTotalPrice->BindParam(':orderCode', $orderCode);
+            $stmtTotalPrice->Execute();
+            $totalOrderPrice = $stmtTotalPrice->Fetch();
+
+            // ทำการ Update Total price ของ Order
+            $stmtUpdateTotalPrice = $conn->prepare("UPDATE orders SET total_price =:update_price WHERE order_number =:order_code");
+            $stmtUpdateTotalPrice->BindParam(":update_price", $totalOrderPrice['Total']);
+            $stmtUpdateTotalPrice->BindParam(":order_code", $orderCode);
+            $stmtUpdateTotalPrice->Execute();
+
+            echo json_encode([
+                "code"    => 200,
+                "status"  => "success",
+                "title"   => "Update Order",
+                "message" => "Update Order " . $orderCode . " successfully.",
+            ]);
+            $stmtUpdateOrderItem  = null;
+            $stmtTotalPrice       = null;
+            $stmtUpdateTotalPrice = null;
+            $conn                 = null;
+        } catch (PDOException $e) {
+            http_response_code(200);
+            echo json_encode([
+                "code"    => 204,
+                "status"  => "error",
+                "title"   => "Something went wrong",
+                "message" => "Could not complete the request : $e",
+            ]);
+            exit;
+        }
+    } else {
         http_response_code(200);
         echo json_encode([
-            'code' => 200,
-            'status' => 'success',
-            'order_code' => $input['order_code'],
-            'id' => $input['id'],
-            'item_name' => $input['itemName'],
-            'price' => $input['price'],
-            'quantity' => $input['quantity'],
-            'total_order_price' => $input['total_order_price'],
-            'sum_item_price' => $input['sum_item_price']
+            'code'    => 204,
+            'status'  => 'error',
+            'title'   => 'Not found',
+            'message' => 'Order code or id is require',
         ]);
-    }else{
-        http_response_code(200);
-        echo json_encode([
-            'code' => 204,
-            'status' => 'error',
-            'title' =>  'Not found',
-            'message' => 'Order code or id is require'
-        ]);
+        exit;
     }
-} elseif ($method === 'DELETE') {
-    // echo "นี่คือ DELETE request";
+}
+//ลบรายการ (DELETE)
+elseif ($method === 'DELETE') {
+    
 } else {
     echo "ไม่รู้จัก method: $method";
 }

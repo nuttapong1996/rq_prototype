@@ -98,7 +98,6 @@ function loadItemDetail(orderNumber, itemId) {
   const itemName = document.getElementById("item_name");
   const quantity = document.getElementById("qty");
   const price = document.getElementById("price");
-  const total_order_price = document.getElementById("total_order_price");
   const sum_item_price = document.getElementById("sum_item_price");
 
 
@@ -107,7 +106,6 @@ function loadItemDetail(orderNumber, itemId) {
   }
   quantity.addEventListener('input', update_sum_price);
   price.addEventListener('input', update_sum_price);
-
 
   fetch(`api/order.php?order_code=${encodeURIComponent(orderNumber)}&id=${encodeURIComponent(itemId)}`, {
     method: "GET",
@@ -123,7 +121,6 @@ function loadItemDetail(orderNumber, itemId) {
                   itemName.value = item.item_name;
                   quantity.value = item.quantity;
                   price.value = item.price;
-                  total_order_price.value = item.total_price;
                   sum_item_price.value = quantity.value * price.value;
             });
         }else{
@@ -133,13 +130,11 @@ function loadItemDetail(orderNumber, itemId) {
 }
 
 function updateItem() {
-  const orderCode = document.getElementById("orderCode").value;
-  const item_id = document.getElementById("item_id").value;
+  const orderCode = document.getElementById("orderCode");
+  const itemId = document.getElementById("item_id");
   const itemName = document.getElementById("item_name");
   const quantity = document.getElementById("qty");
   const price = document.getElementById("price");
-  const total_order_price = document.getElementById("total_order_price");
-  const sum_item_price = document.getElementById("sum_item_price");
 
   fetch('api/order.php',{
     method: 'PUT',
@@ -147,13 +142,12 @@ function updateItem() {
       'Content-Type' : 'application/json'
     },
     body: JSON.stringify({
-      order_code : orderCode,
-      id: item_id,
+      orderCode : orderCode.value,
+      itemId: itemId.value,
       itemName : itemName.value,
       quantity : quantity.value,
       price : price.value,
-      total_order_price : total_order_price.value,
-      sum_item_price : sum_item_price.value
+      sumItemPrice : quantity.value * price.value
     })
   })
    .then((response)=>response.json())
