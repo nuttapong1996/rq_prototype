@@ -51,11 +51,12 @@
   <hr>
   <br>
   <h3>ค้นหารายการ</h3>
-  <input type="text" id="order_code" placeholder="กรุณากรอก Order Code">
+  <input type="text" id="orderCode" placeholder="กรุณากรอก Order Code">
   <br>
   <br>
   <!-- ตารางรายการสินค้า -->
-  <table border="1" id="searchTable">
+
+  <!-- <table border="1" id="searchTable">
     <thead>
       <tr>
         <th>ชื่อสินค้า</th>
@@ -66,7 +67,27 @@
     </thead>
     <tbody>
          <tr><td colspan="4">ไม่พบรายการ</td></tr>
-      <!-- แถวจะถูกเพิ่มที่นี่ด้วย JavaScript -->
+    </tbody>
+     <tfoot>
+    <tr>
+      <td colspan="2" style="text-align: right;"><strong>รวมทั้งหมด:</strong></td>
+      <td id="totalSearchPrice">0.00</td>
+      <input type="hidden"  id="UpdateTotalPrice">
+      <td></td>
+    </tr>
+  </tfoot>
+  </table> -->
+  <table border="1" id="searchTable">
+    <thead>
+      <tr>
+        <th>วันที่สั่ง</th>
+        <th>Order Code</th>
+        <th>ราคา</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+         <tr><td colspan="4">ไม่พบรายการ</td></tr>
     </tbody>
      <tfoot>
     <tr>

@@ -1,8 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const Seacrh_box = document.getElementById("order_code");
-  if (Seacrh_box) Seacrh_box.addEventListener("input", loadItems);
+  // const Seacrh_box = document.getElementById("order_code");
+  // if (Seacrh_box) Seacrh_box.addEventListener("input", loadItems);
 
 });
+
+function searchOrder(orderCode){
+  const tableBody = document.getElementById("searchTable").getElementsByTagName("tbody")[0];
+  
+}
 
 function loadItems() {
   const order_code = document.getElementById("order_code").value;
