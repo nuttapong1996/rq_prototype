@@ -3,8 +3,6 @@ document.addEventListener("DOMContentLoaded" , ()=>{
     getStockItem("all","stockTable");
 });
 
-
-
 // ฟังก์ชั่นดึงไอเท็มในคลัง
 function getStockItem (Item , tableName){
     const table = document.getElementById(tableName).getElementsByTagName("tbody")[0];
