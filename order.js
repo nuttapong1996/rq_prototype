@@ -1,93 +1,135 @@
-// เมื่อโหลดหน้าเสร็จ
+// DOMContentLoaded เริ่มทำงานเมื่อโหลดหน้าเว็บ
 document.addEventListener("DOMContentLoaded", () => {
-  const itemName = document.getElementById("itemName");
-  const quantity = document.getElementById("quantity");
-  const price = document.getElementById("price");
-
-  const orderTable = document
-    .getElementById("orderTable")
-    .getElementsByTagName("tbody")[0];
   const addItemBtn = document.getElementById("addItem");
-  const submitOrderBtn = document.getElementById("submitOrder");
 
-  // ฟังก์ชันเพิ่มรายการสินค้าในตาราง
-  addItemBtn.addEventListener("click", () => {
-    if (!itemName.value || !quantity.value || !price.value) {
-      alert("กรุณากรอกข้อมูลให้ครบ");
-      return;
-    }
+  if (addItemBtn) {
+    // ประกาศตัวแปร Object สำหรับใช้งานในการเช็ค
+    const orderTable = document.getElementById("orderTable");
+    const detailTable = document.getElementById("detailTable");
 
-    const row = orderTable.insertRow();
-    row.innerHTML = `
-      <td>${itemName.value}</td>
-      <td>${quantity.value}</td>
-      <td>${price.value}</td>
-      <td><button onclick="removeItem(this)">ลบ</button></td>
-    `;
-
-    // เคลียร์ค่าหลังเพิ่ม
-    itemName.value = "";
-    quantity.value = "";
-    price.value = "";
-    updateTotalPrice();
-  });
-
-
-  // ฟังก์ชันส่งข้อมูล Order ไปบันทึก
-  submitOrderBtn.addEventListener("click", () => {
-    const rows = orderTable.rows;
-
-    if (rows.length === 0) {
-      alert("กรุณาเพิ่มไอเท็มอย่างน้อย 1 รายการ");
-      return;
-    }
-
-    // รวบรวมข้อมูลสินค้า
-    const orderItems = Array.from(rows).map((row) => {
-      const cells = row.cells;
-      return {
-        item_name: cells[0].innerText,
-        quantity: parseInt(cells[1].innerText),
-        price: parseFloat(cells[2].innerText),
-      };
-    });
-
-    // ส่งข้อมูลไปเซิร์ฟเวอร์
-    fetch("save_order.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        order_items: orderItems,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        alert(data.message);
-        if (data.success) location.reload();
-      })
-      .catch((err) => {
-        console.error("เกิดข้อผิดพลาด:", err);
-        alert("ไม่สามารถบันทึก Order ได้");
+    // ทำการเช็คว่ามี object อยู่ในหน้าเว็บมั้ย
+    // Index page
+    if (orderTable) {
+      addItemBtn.addEventListener("click", () => {
+        addItem("orderTable",
+          "itemCode",
+          "itemName",
+          "quantity",
+          "price",
+          "totalPrice"
+        );
       });
-  });
+    }
+    // Detail page 
+    else if (detailTable) {
+      addItemBtn.addEventListener("click", () => {
+        addItem(
+          "detailTable",
+          "itemCode",
+          "itemName",
+          "quantity",
+          "price",
+          "totalOrderPrice"
+        );
+      });
+    }
+  }
+
 });
 
-// ฟังก์ชันลบแถวสินค้า
-function removeItem(button) {
-  button.closest("tr").remove();
-  updateTotalPrice();
+// ฟังก์ชันเพิ่มรายการสินค้า
+function addItem(tableName, itemCode, itemName, itemQuantity, itemPrice, textTotal) {
+  const item_Code = document.getElementById(itemCode);
+  const item_Name = document.getElementById(itemName);
+  const item_Quantity = document.getElementById(itemQuantity);
+  const item_Price = document.getElementById(itemPrice);
+  const totalText = document.getElementById(textTotal);
+
+  const table = document.getElementById(tableName).getElementsByTagName("tbody")[0];
+
+  let i ;
+
+
+
+  if (!item_Name.value || !item_Quantity.value || !item_Price.value) {
+    alert("กรุณากรอกข้อมูลให้ครบ");
+    return;
+  }
+
+  // ลบแถว 'ไม่มีรายการสินค้า' ถ้ามี
+  const emptyRow = document.getElementById('noItem');
+  if (emptyRow) {
+    emptyRow.closest("tr").remove();
+    i--;
+  }
+
+  // check Itemcode ซ้ำ ในตาราง
+  const rowItemCode = table.getElementsByTagName("tr");
+
+  let isDuplicate = false;
+  // วนลูปหาค่าซ้ำ
+  for (let rowdup of rowItemCode) {
+    const existItemCode = rowdup.cells[1].textContent.trim();
+    if (item_Code.value === existItemCode) {
+      isDuplicate = true;
+      break;
+    }
+  }
+
+  if (isDuplicate === true) {
+    alert("Item Code นี้ถูกเลือกไปแล้ว");
+    item_Code.value = "";
+    item_Name.value = "";
+    item_Quantity.value = "";
+    item_Price.value = "";
+  } else {
+    const row = table.insertRow();
+    i = table.rows.length;
+    row.innerHTML = `
+              <td>${i}</td>
+              <td>${item_Code.value}</td>
+              <td>${item_Name.value}</td>
+              <td><input  type="number" value="${item_Quantity.value}"  style="width: 50px; text-align:center" disabled/></td>
+              <td>${item_Price.value}</td>
+              <td>${item_Price.value * item_Quantity.value}</td>
+              <td><button class="btn btn-danger" onclick="removeItem(this, '${tableName}' ,'${textTotal}' )">X</button></td> `;
+
+    // เคลียร์ค่า Textbox หลังเพิ่ม
+    item_Code.value = "";
+    item_Name.value = "";
+    item_Quantity.value = "";
+    item_Price.value = "";
+    // อัพเดทราคารวม
+    if (totalText) totalText.textContent = updateTotal(tableName);
+  }
 }
 
-function updateTotalPrice() {
-  const tbody = document.querySelector("#orderTable tbody");
+// ฟังก์ชันลบแถวสินค้า
+function removeItem(button, tableName, textTotal) {
+  const totalText = document.getElementById(textTotal);
+  button.closest("tr").remove();
+  if (totalText) {
+    totalText.textContent = updateTotal(tableName);
+  }
+}
+// ฟังก์ชั่นคำนวนและอัพเดทราคารวม
+function updateTotal(tableName) {
+  const tbody = document.querySelector(`#${tableName} tbody`);
   const rows = tbody.rows;
   let total = 0;
 
   for (let row of rows) {
-    const quantity = parseFloat(row.cells[1].innerText);
-    const price = parseFloat(row.cells[2].innerText);
-    total += quantity * price;
+    const quantityInput = row.cells[3].querySelector('input');
+    const price = parseFloat(row.cells[4].innerText) || 0;
+
+    if (quantityInput) {
+      const quantity = parseFloat(quantityInput.value) || 0;
+      total += quantity * price;
+    }
   }
 
-  document.getElementById("totalPrice").textContent = total.toFixed(2);
+  return total;
 }
+
+
+

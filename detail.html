@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="order.js" defer></script>
+    <script src="fetch_data.js" defer></script>
+    <title>Document</title>
+</head>
+<body>
+    <a href="index.html">กลับหน้าหลัก</a> |
+    <!-- <a id="addItemBtn">เพิ่มรายการสินค้า</a> -->
+    <h3>เพิ่มรายการ</h3>
+
+    <!-- ฟอร์มกรอกสินค้า -->
+     <input type="text" id="inputItemCode" placeholder="กรุณากรอกรหัสสินค้า">
+  <ul id="itemCodeList" style="display: none;"></ul>
+  <br>
+  <br>
+  <label>รหัสสินค้า</label>
+  <input type="text" id="itemCode" disabled>
+  <br><br>
+  <label>ชื่อสินค้า:</label>
+  <input type="text" id="itemName" disabled>
+  <br><br>
+  <label>ราคา:</label>
+  <input type="number" id="price" step="0.01" disabled>
+  <br><br>
+   <label>จำนวน:</label>
+  <input type="number" id="quantity">
+   <br><br>
+  <button id="addItem">เพิ่มรายการ</button>
+    <hr>
+    <h2>รายการสั่งซื้อสินค้า เลขที่ : <span id="orderCodeTitle"></span></h2>
+    <table border="1" id="detailTable">
+    <thead>
+      <tr>
+        <th>ลำดับ</th>
+        <th>รหัสสินค้า</th>   
+        <th>ชื่อสินค้า</th>
+        <th>จำนวน</th>
+        <th>ราคา/หน่วย</th>
+        <th>ราคารวม</th>
+        <!-- <th>แก้ไข</th> -->
+        <th>ลบ</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+     <tfoot>
+    <tr>
+      <td colspan="4" style="text-align: right;"><strong>รวมทั้งหมด:</strong></td>
+      <td id="totalOrderPrice"  style="text-align: right" colspan="2">0.00</td>
+      <td style="text-align: center;" colspan="2">฿</td>
+    </tr>
+  </tfoot>
+  </table>
+<br>
+  <button id="saveOrder">บันทึกรายการ</button>
+</body>
+</html>
+

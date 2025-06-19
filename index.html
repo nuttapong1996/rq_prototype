@@ -3,100 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/bootstrap-5.3.3/css/bootstrap.min.css">
+  <script src="assets/bootstrap-5.3.3/js/bootstrap.min.js"></script>
+  <script src="assets/bootstrap-5.3.3/js/popper.min.js"></script>
+  <script src="order.js"></script>
+  <script src="fetch_data.js"></script>
+  <script src="js/script.js"></script>
+
   <title>เพิ่มรายการ Order</title>
-  <script src="order.js" defer></script>
-  <script src="fetch_data.js" defer></script>
 </head>
 <body>
-  <h2>เพิ่มรายการ</h2>
+  <main class="container">
+    <div class="row justify-content-center mt-2">
+      <div class="col-sm-12 col-md-6 col-lg-6 mb-3">
+        <div class="card">
+          <h3 class="card-header bg-warning">Stock List</h3>
+            <div class="card-body bg-warning-subtle">
+              <table class="table table-bordered" id="stockTable">
+                <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Item Code</th>
+                      <th>Item Name</th>
+                      <th>Price</th>
+                      <th>Remain</th>
+                      <th>...</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+        </div>
+      </div>
 
-  <!-- ฟอร์มกรอกสินค้า -->
-  <label>ชื่อสินค้า:</label>
-  <input type="text" id="itemName">
-  <label>จำนวน:</label>
-  <input type="number" id="quantity">
-  <label>ราคา:</label>
-  <input type="number" id="price" step="0.01">
-  <button id="addItem">เพิ่มรายการ</button>
+      <div class="col-sm-12 col-md-6 col-lg-6 mb-3">
+          <div class="card">
+              <h3 class="card-header bg-primary text-white">Request Form</h3>
+                <div class="card-body bg-primary-subtle">
+                  <div class="input-group mb-3">
+                    <input class="form-control" type="text" id="inputItemCode" placeholder="กรุณากรอก Item Code">
+                  </div>
+                  <ul id="itemCodeList" style="display: none;"></ul>
+                  <div class="input-group mb-3">
+                      <span class="input-group-text">Item Code</span>
+                      <input class="form-control" type="text" id="itemCode" disabled>
+                  </div>
+                  <div class="input-group mb-3">
+                      <span class="input-group-text">Item Name</span>
+                      <input class="form-control" type="text" id="itemName" disabled>
+                  </div>
+                  <div class="input-group mb-3">
+                      <span class="input-group-text">Item Price</span>
+                      <input class="form-control" type="number" id="price" step="0.01" disabled>
+                      <span class="input-group-text">฿</span>
+                  </div>
+                  <div class="input-group mb-3">
+                      <span class="input-group-text">Request Quantity</span>
+                      <input class="form-control" type="number" id="quantity">
+                      <span class="input-group-text">EA</span>
+                  </div>
+                </div>
+                <div class="card-footer bg-primary-subtle">
+                  <button class="btn btn-primary w-100" id="addItem">+ Add Item</button>
+                </div>
+              </div>
+          </div>
+    </div>
+    <div class="row justify-content-center mt-2">
+      <div class="col-sm-12 col-md-6 col-lg-6 mb-3">
+        <div class="card">
+          <h3 class="card-header bg-success text-white">Request List</h3>
+          <div class="card-body bg-success-subtle">
+            <table class="table table-bordered" id="orderTable">
+              <thead>
+                <tr>
+                  <th>ลำดับ</th>
+                  <th>รหัสสินค้า</th>
+                  <th>ชื่อสินค้า</th>
+                  <th>จำนวน</th>
+                  <th>ราคา/หน่วย</th>
+                  <th>ราคารวม</th>
+                  <th>ลบ</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="text-center fw-bold" colspan="5">รวมทั้งหมด:</td>
+                  <td class="text-center fw-bold" id="totalPrice" style="text-align: right">0.00</td>
+                  <td class="text-center fw-bold" colspan="2">฿</td>
+                </tr>
+              </tfoot>
+            </table>
+            <button class="btn btn-success w-100" id="submitOrder">Submit</button>
+          </div>
+        </div>
+      </div>
 
-  <!-- ช่องกรอก Order Code -->
-  <h3>รายการสินค้า</h3>
-  <!-- ตารางรายการสินค้า -->
-  <table border="1" id="orderTable">
-    <thead>
-      <tr>
-        <th>ชื่อสินค้า</th>
-        <th>จำนวน</th>
-        <th>ราคา</th>
-        <th>การกระทำ</th>
-      </tr>
-    </thead>
-    <tbody>
-       
-      <!-- แถวจะถูกเพิ่มที่นี่ด้วย JavaScript -->
-    </tbody>
-    <tfoot>
-    <tr>
-      <td colspan="2" style="text-align: right;"><strong>รวมทั้งหมด:</strong></td>
-      <td id="totalPrice">0.00</td>
-      <td></td>
-    </tr>
-  </tfoot>
-  </table>
-
-  <br>
-  <button id="submitOrder">บันทึกรายการ</button>
-
-  
-  <hr>
-  <br>
-  <h3>ค้นหารายการ</h3>
-  <input type="text" id="orderCode" placeholder="กรุณากรอก Order Code">
-  <br>
-  <br>
-  <!-- ตารางรายการสินค้า -->
-
-  <!-- <table border="1" id="searchTable">
-    <thead>
-      <tr>
-        <th>ชื่อสินค้า</th>
-        <th>จำนวน</th>
-        <th>ราคา</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-         <tr><td colspan="4">ไม่พบรายการ</td></tr>
-    </tbody>
-     <tfoot>
-    <tr>
-      <td colspan="2" style="text-align: right;"><strong>รวมทั้งหมด:</strong></td>
-      <td id="totalSearchPrice">0.00</td>
-      <input type="hidden"  id="UpdateTotalPrice">
-      <td></td>
-    </tr>
-  </tfoot>
-  </table> -->
-  <table border="1" id="searchTable">
-    <thead>
-      <tr>
-        <th>วันที่สั่ง</th>
-        <th>Order Code</th>
-        <th>ราคา</th>
-        <th>Edit</th>
-      </tr>
-    </thead>
-    <tbody>
-         <tr><td colspan="4">ไม่พบรายการ</td></tr>
-    </tbody>
-     <tfoot>
-    <tr>
-      <td colspan="2" style="text-align: right;"><strong>รวมทั้งหมด:</strong></td>
-      <td id="totalSearchPrice">0.00</td>
-      <input type="hidden"  id="UpdateTotalPrice">
-      <td></td>
-    </tr>
-  </tfoot>
-  </table>
+      <div class="col-sm-12 col-md-6 col-lg-6 mb-3">
+        <div class="card">
+          <div class="card-header bg-secondary text-white d-flex">
+            <h3 class="me-2">Search</h3>
+             <input class="form-control" type="text" id="orderCode" placeholder="กรุณากรอก RQ Number">
+          </div>
+          <div class="card-body bg-secondary-subtle">
+            <table class="table table-bordered" id="searchTable">
+              <thead>
+                <tr>
+                  <th>ลำดับ</th>
+                  <th>วันที่สั่ง</th>
+                  <th>Order Code</th>
+                  <th>ราคา</th>
+                  <th>View</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </div>
+    </div>
+  </main>
 </body>
 </html>
