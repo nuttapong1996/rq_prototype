@@ -131,38 +131,39 @@ if ($method === 'GET' && ! empty($_GET)) {
 else if ($method === 'POST') {
     if (! empty($input['order_items']) && is_array($input['order_items'])) {
         try {
-            // -------- เพิ่ม Order และ Item--------------- //
+        // -------- Create RQ with add items.--------------- //
             if (empty($input['order_code'])) {
-                // -------- เพิ่ม Order --------------- //
                 // Generate Order Code
                 $rannumst    = rand(10, 99);
                 $rannumnd    = rand(10, 99);
                 $rannum      = $rannumst . "/" . $rannumnd;
+
+                // ประกาศตัวแปร orderNumber
                 $orderNumber = "RQ" . $rannum;
-                // สร้างตัวแปร totalPrice สำหรับเก็บค่าราคารวม
+
+                // ประกาศตัวแปร totalPrice สำหรับเก็บค่าราคารวม
                 $totalPrice = 0;
                 // Query เพิ่ม Order
                 $order = $conn->prepare("INSERT INTO orders (order_number ,total_price) VALUES (:order_number,:total_price)");
-                // ทำการวนลูปเพื่อดึงรายการสินค้าจาก input ที่ถูกส่งมาแบบ Array
+                // Query เพิ่ม Order Item
+                $order_items = $conn->prepare("INSERT INTO order_items ( order_number , item_code, item_name, quantity,  price)VALUES (:order_number,:item_code, :item_name, :quantity, :price)");
+               
+                // ทำการวนลูป $input['order_items']  เพื่อผูกค่า Param กับ Query ของ sql
                 foreach ($input['order_items'] as $data_order) {
-                    // ทำการคำนวนราคารวมสำหรับแต่ละรายการสินค้า
+                    // ทำการคำนวนราคารวมสำหรับแต่ละรายการ Item 
                     $totalPrice += $data_order['quantity'] * $data_order['price'];
                     $order->BindParam(":order_number", $orderNumber);
                     $order->BindParam(":total_price", $totalPrice);
-                }
-                $order->Execute();
-                // -------- เพิ่ม Order Item --------------- //
-                // Query เพิ่ม Order Item
-                $order_items = $conn->prepare("INSERT INTO order_items ( order_number , item_code, item_name, quantity,  price)VALUES (:order_number,:item_code, :item_name, :quantity, :price)");
-                // ทำการวนลูปเพื่อบันทึกรายการสินค้า
-                foreach ($input['order_items'] as $data_order_items) {
+                    // ทำการวนลูปเพื่อบันทึกรายการ Item
                     $order_items->BindParam(":order_number", $orderNumber);
-                    $order_items->BindParam(":item_code", $data_order_items['item_code']);
-                    $order_items->BindParam(":item_name", $data_order_items['item_name']);
-                    $order_items->BindParam(":quantity", $data_order_items['quantity']);
-                    $order_items->BindParam(":price", $data_order_items['price']);
+                    $order_items->BindParam(":item_code", $data_order['item_code']);
+                    $order_items->BindParam(":item_name", $data_order['item_name']);
+                    $order_items->BindParam(":quantity", $data_order['quantity']);
+                    $order_items->BindParam(":price", $data_order['price']);
                     $order_items->execute();
                 }
+                // ทำการ Insert Order
+                $order->Execute();
 
                 http_response_code(200);
                 echo json_encode(
@@ -174,7 +175,7 @@ else if ($method === 'POST') {
                         "order"   => $orderNumber,
                     ]
                 );
-                // -------- เพิ่ม Order Item By Order --------------- //
+        // --------Add items to RQ. --------------- //
             } else if (! empty($input['order_code'])) {
                 // สร้างตัวแปร totalPrice สำหรับเก็บค่าราคารวม
                 $totalPrice = 0;
